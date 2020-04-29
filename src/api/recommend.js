@@ -2,6 +2,7 @@ import axios from 'axios'
 import {
   commonParams
 } from 'api/config'
+
 export function getTopBanner() {
   const url = '/api/getTopBanner'
   const data = Object.assign({}, commonParams, {
@@ -78,6 +79,26 @@ export function getTopBanner() {
   return axios.get(url, {
     params: data
   }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
+export function getSongRecList() {
+  const url = '/api/getSongRecList'
+  const data = Object.assign({}, commonParams, {
+    platform: 'yqq',
+    hostUin: 0,
+    sin: 0,
+    ein: 29,
+    sortId: 5,
+    needNewCode: 0,
+    categoryId: 10000000,
+    rnd: Math.random(),
+    format: 'json'
+  })
+  return axios.get(url, {
+    params: data
+  }).then((res)=>{
     return Promise.resolve(res.data)
   })
 }

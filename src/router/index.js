@@ -4,6 +4,7 @@ import Recommend from 'components/recommend/recommend'
 import Singer from 'components/singer/singer'
 import Rank from 'components/rank/rank'
 import Search from 'components/search/search'
+import SongList from 'components/song-list/song-list'
 Vue.use(VueRouter)
 
 const routes = [{

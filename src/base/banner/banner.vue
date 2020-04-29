@@ -53,6 +53,9 @@ export default {
       });
     }, 20);
   },
+  destroyed() {
+    clearTimeout(this.timer)
+  },
   methods: {
     _setBannerWidth(isResize) {
       let width = 0;
