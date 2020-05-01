@@ -6,7 +6,7 @@
           <banner v-if="bannerList.length">
             <div v-for="item in bannerList" :key="item.id">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl" alt="轮播图图片" />
+                <img @load="loadImage" :src="item.picUrl" alt="轮播图图片" />
               </a>
             </div>
           </banner>
@@ -26,6 +26,9 @@
           </ul>
         </div>
       </div>
+      <div class="loading-wrapper" v-show="!songRecList.length">
+        <loading></loading>
+      </div>
     </scroll>
   </div>
 </template>
@@ -35,6 +38,7 @@ import { ERR_OK } from "api/config.js";
 import { getTopBanner, getSongRecList } from "api/recommend.js";
 import Banner from "base/banner/banner";
 import Scroll from "base/scroll/scroll";
+import Loading from 'base/loading/loading'
 export default {
   data() {
     return {
@@ -61,11 +65,18 @@ export default {
           console.log(this.songRecList);
         }
       });
+    },
+    loadImage() {
+      if(!this.checkLoaded) {
+        this.$refs.scroll.refresh()
+        this.checkLoaded = true
+      }
     }
   },
   components: {
     Banner,
-    Scroll
+    Scroll,
+    Loading
   }
 };
 </script>
@@ -105,4 +116,9 @@ export default {
             color $color-text
           .desc
             color $color-text-d
+    .loading-wrapper
+      position absolute
+      width 100%
+      top 50%
+      transform translateY(-50%)
 </style>
