@@ -1,6 +1,11 @@
 <template>
-  <scroll class="listview" :data="listArray" ref="listview">
-    <ul>
+  <scroll class="listview" 
+          :data="listArray" 
+          ref="listview"
+          :listenScroll="listenScroll"
+          @scroll="scroll"
+          :probeType="probeType">
+    <ul class="listContainer">
       <li v-for="item in listArray" :key="item.title" ref="listviewItems">
         <div class="title">{{item.title}}</div>
         <ul>
@@ -18,8 +23,12 @@
           v-for="(item, index) in shortcutList"
           :key="index"
           :data-index="index"
+          :class="{active: currentIndex===index}"
         >{{item}}</li>
       </ul>
+    </div>
+    <div class="list-fixed" v-show="fixedTilte" ref="fixedTitle">
+      <div>{{fixedTilte}}</div>
     </div>
   </scroll>
 </template>
@@ -29,7 +38,16 @@ import Scroll from "base/scroll/scroll";
 import "./../../common/stylus/variable.styl";
 import { getData } from "common/js/dom.js";
 const SHORT_CUT_ITEM_HEIGHT = 18;
+const FIXED_TITLE_HEIGHT = 30
 export default {
+  data() {
+    return {
+      scrollY: -1,
+      scrollHeight: [],
+      currentIndex: 0,
+      diff: -1
+    }
+  },
   props: {
     listArray: {
       type: Array,
@@ -38,6 +56,8 @@ export default {
   },
   created() {
     this.touch = {};
+    this.listenScroll = true
+    this.probeType = 3
   },
   mounted() {
     // console.log(this.shortcutList)
@@ -47,6 +67,12 @@ export default {
       return this.listArray.map(item => {
         return item.title.substr(0, 1);
       });
+    },
+    fixedTilte() {
+      if(this.scrollY>0) {
+        return ''
+      }
+      return this.listArray[this.currentIndex]?this.listArray[this.currentIndex].title:''
     }
   },
   methods: {
@@ -56,6 +82,7 @@ export default {
       this.touch.index = index;
       this.touch.y1 = e.touches[0].pageY;
       this._scrollTo(index)
+      
     },
     onshortcutTouchmove(e) {
       this.touch.y2 = e.touches[0].pageY;
@@ -63,8 +90,60 @@ export default {
       let positionIndex = this.touch.index + detla
       this._scrollTo(positionIndex)
     },
+    scroll(pos) {
+      this.scrollY = pos.y
+    },
     _scrollTo(index) {
+      
+      if(!index&&index!==0) {
+        return
+      }
+      if(index<0) {
+        index = 0
+      } else if(index>this.scrollHeight.length-2) {
+        index = this.scrollHeight.length - 2
+      }
+      this.scrollY = -this.scrollHeight[index]
       this.$refs.listview.scrollToElement(this.$refs.listviewItems[index], 0);
+    },
+    _caculateHeight() {
+      // 先计算出左侧各个部分显示需要滑动的高度
+      this.scrollHeight[0] = 0
+      let listviewItems = this.$refs.listviewItems
+      for(let i=0; i<listviewItems.length; i++) {
+        this.scrollHeight.push(this.scrollHeight[i]+listviewItems[i].clientHeight)
+      }
+    }
+  },
+  watch: {
+    listArray() {
+      setTimeout(() => {
+        this._caculateHeight()
+      }, 20);
+    },
+    scrollY(newY) {
+      if(newY>0) {
+        this.currentIndex = 0
+        return
+      }
+      for(let i=0; i<this.scrollHeight.length-2; i++) {
+        let height1 = this.scrollHeight[i]
+        let height2 = this.scrollHeight[i+1]
+        if(-newY>=height1 && -newY<height2) {
+          this.currentIndex = i
+          this.diff = height2+newY
+          return
+        }
+      }
+      this.currentIndex = this.scrollHeight.length-2
+    },
+    diff(newDiff) {
+      let fixedTop = newDiff>0&&newDiff<FIXED_TITLE_HEIGHT?newDiff-FIXED_TITLE_HEIGHT:0
+      if(this.fixedTop === fixedTop) {
+        return
+      }
+      this.fixedTop = fixedTop
+      this.$refs.fixedTitle.style.transform = `translate3d(0, ${fixedTop}px, 0)`
     }
   },
   components: {
@@ -82,22 +161,25 @@ export default {
   bottom 0
   width 100%
   overflow hidden
-  .title
-    height 30px
-    color $color-text-l
-    font-size $font-size-small
-    padding-left 20px
-    line-height 30px
-    background-color $color-height-background
-  .singerItem
-    padding 20px 0 0 30px
-    img
-      border-radius 50%
-      vertical-align middle
-    .name
+  z-index -1
+  .listContainer
+    padding-bottom 30px
+    .title
+      height 30px
       color $color-text-l
-      font-size $font-size-medium
-      margin-left 20px
+      font-size $font-size-small
+      padding-left 20px
+      line-height 30px
+      background-color $color-height-background
+    .singerItem
+      padding 20px 0 0 30px
+      img
+        border-radius 50%
+        vertical-align middle
+      .name
+        color $color-text-l
+        font-size $font-size-medium
+        margin-left 20px
   .shortcut
     position fixed
     top 50%
@@ -113,4 +195,17 @@ export default {
       height 18px
       text-align center
       line-height $font-size-small
+      &.active
+        color $color-theme
+  .list-fixed
+    position fixed
+    left 0
+    top 88px
+    height 30px
+    color $color-text-l
+    font-size $font-size-small
+    padding-left 20px
+    line-height 30px
+    background-color $color-height-background
+    width 100%
 </style>
