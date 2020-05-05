@@ -1,15 +1,17 @@
 <template>
-  <scroll class="listview" 
-          :data="listArray" 
-          ref="listview"
-          :listenScroll="listenScroll"
-          @scroll="scroll"
-          :probeType="probeType">
+  <scroll
+    class="listview"
+    :data="listArray"
+    ref="listview"
+    :listenScroll="listenScroll"
+    @scroll="scroll"
+    :probeType="probeType"
+  >
     <ul class="listContainer">
       <li v-for="item in listArray" :key="item.title" ref="listviewItems">
         <div class="title">{{item.title}}</div>
         <ul>
-          <li class="singerItem" v-for="child in item.item" :key="child.id">
+          <li class="singerItem" v-for="child in item.item" :key="child.id" @click="selectItem(child)">
             <img width="50" height="50" v-lazy="child.avatar" alt="歌手图片" />
             <span class="name">{{child.name}}</span>
           </li>
@@ -38,7 +40,7 @@ import Scroll from "base/scroll/scroll";
 import "./../../common/stylus/variable.styl";
 import { getData } from "common/js/dom.js";
 const SHORT_CUT_ITEM_HEIGHT = 18;
-const FIXED_TITLE_HEIGHT = 30
+const FIXED_TITLE_HEIGHT = 30;
 export default {
   data() {
     return {
@@ -46,7 +48,7 @@ export default {
       scrollHeight: [],
       currentIndex: 0,
       diff: -1
-    }
+    };
   },
   props: {
     listArray: {
@@ -56,8 +58,8 @@ export default {
   },
   created() {
     this.touch = {};
-    this.listenScroll = true
-    this.probeType = 3
+    this.listenScroll = true;
+    this.probeType = 3;
   },
   mounted() {
     // console.log(this.shortcutList)
@@ -69,10 +71,12 @@ export default {
       });
     },
     fixedTilte() {
-      if(this.scrollY>0) {
-        return ''
+      if (this.scrollY > 0) {
+        return "";
       }
-      return this.listArray[this.currentIndex]?this.listArray[this.currentIndex].title:''
+      return this.listArray[this.currentIndex]
+        ? this.listArray[this.currentIndex].title
+        : "";
     }
   },
   methods: {
@@ -81,69 +85,75 @@ export default {
       let index = parseInt(getData(e.target, "index"));
       this.touch.index = index;
       this.touch.y1 = e.touches[0].pageY;
-      this._scrollTo(index)
-      
+      this._scrollTo(index);
     },
     onshortcutTouchmove(e) {
       this.touch.y2 = e.touches[0].pageY;
       let detla = ((this.touch.y2 - this.touch.y1) / SHORT_CUT_ITEM_HEIGHT) | 0;
-      let positionIndex = this.touch.index + detla
-      this._scrollTo(positionIndex)
+      let positionIndex = this.touch.index + detla;
+      this._scrollTo(positionIndex);
     },
     scroll(pos) {
-      this.scrollY = pos.y
+      this.scrollY = pos.y;
     },
     _scrollTo(index) {
-      
-      if(!index&&index!==0) {
-        return
+      if (!index && index !== 0) {
+        return;
       }
-      if(index<0) {
-        index = 0
-      } else if(index>this.scrollHeight.length-2) {
-        index = this.scrollHeight.length - 2
+      if (index < 0) {
+        index = 0;
+      } else if (index > this.scrollHeight.length - 2) {
+        index = this.scrollHeight.length - 2;
       }
-      this.scrollY = -this.scrollHeight[index]
+      this.scrollY = -this.scrollHeight[index];
       this.$refs.listview.scrollToElement(this.$refs.listviewItems[index], 0);
     },
     _caculateHeight() {
       // 先计算出左侧各个部分显示需要滑动的高度
-      this.scrollHeight[0] = 0
-      let listviewItems = this.$refs.listviewItems
-      for(let i=0; i<listviewItems.length; i++) {
-        this.scrollHeight.push(this.scrollHeight[i]+listviewItems[i].clientHeight)
+      this.scrollHeight[0] = 0;
+      let listviewItems = this.$refs.listviewItems;
+      for (let i = 0; i < listviewItems.length; i++) {
+        this.scrollHeight.push(
+          this.scrollHeight[i] + listviewItems[i].clientHeight
+        );
       }
+    },
+    selectItem(item) {
+      this.$emit('select', item)
     }
   },
   watch: {
     listArray() {
       setTimeout(() => {
-        this._caculateHeight()
+        this._caculateHeight();
       }, 20);
     },
     scrollY(newY) {
-      if(newY>0) {
-        this.currentIndex = 0
-        return
+      if (newY > 0) {
+        this.currentIndex = 0;
+        return;
       }
-      for(let i=0; i<this.scrollHeight.length-2; i++) {
-        let height1 = this.scrollHeight[i]
-        let height2 = this.scrollHeight[i+1]
-        if(-newY>=height1 && -newY<height2) {
-          this.currentIndex = i
-          this.diff = height2+newY
-          return
+      for (let i = 0; i < this.scrollHeight.length - 2; i++) {
+        let height1 = this.scrollHeight[i];
+        let height2 = this.scrollHeight[i + 1];
+        if (-newY >= height1 && -newY < height2) {
+          this.currentIndex = i;
+          this.diff = height2 + newY;
+          return;
         }
       }
-      this.currentIndex = this.scrollHeight.length-2
+      this.currentIndex = this.scrollHeight.length - 2;
     },
     diff(newDiff) {
-      let fixedTop = newDiff>0&&newDiff<FIXED_TITLE_HEIGHT?newDiff-FIXED_TITLE_HEIGHT:0
-      if(this.fixedTop === fixedTop) {
-        return
+      let fixedTop =
+        newDiff > 0 && newDiff < FIXED_TITLE_HEIGHT
+          ? newDiff - FIXED_TITLE_HEIGHT
+          : 0;
+      if (this.fixedTop === fixedTop) {
+        return;
       }
-      this.fixedTop = fixedTop
-      this.$refs.fixedTitle.style.transform = `translate3d(0, ${fixedTop}px, 0)`
+      this.fixedTop = fixedTop;
+      this.$refs.fixedTitle.style.transform = `translate3d(0, ${fixedTop}px, 0)`;
     }
   },
   components: {
