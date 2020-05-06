@@ -40,9 +40,9 @@ export default {
         click: this.click
       });
       if (this.listenScroll) {
-        this.scroll.on('scroll', (pos)=>{
-          this.$emit('scroll', pos)
-        })
+        this.scroll.on("scroll", pos => {
+          this.$emit("scroll", pos);
+        });
       }
     },
     enable() {

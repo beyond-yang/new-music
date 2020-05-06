@@ -1,0 +1,39 @@
+<template>
+  <div class="song-list">
+    <ul>
+      <li class="song-item" v-for="item in songs" :key="item.id">
+        <h2 class="song-name">{{item.name}}</h2>
+        <p class="desc">{{item.singer}}-{{item.album}}</p>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    songs: {
+      type: Array,
+      default: []
+    }
+  }
+};
+</script>
+
+<style lang="stylus" scoped>
+@import './../../common/stylus/variable.styl'
+
+.song-list
+  .song-item
+    display flex
+    flex-direction column
+    justify-content center
+    width 100%
+    height 64px
+    font-size $font-size-medium
+    .song-name
+      color $color-text
+    .desc
+      color $color-text-d
+      margin-top 8px
+</style>

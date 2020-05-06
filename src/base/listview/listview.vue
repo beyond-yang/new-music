@@ -11,7 +11,12 @@
       <li v-for="item in listArray" :key="item.title" ref="listviewItems">
         <div class="title">{{item.title}}</div>
         <ul>
-          <li class="singerItem" v-for="child in item.item" :key="child.id" @click="selectItem(child)">
+          <li
+            class="singerItem"
+            v-for="child in item.item"
+            :key="child.id"
+            @click="selectItem(child)"
+          >
             <img width="50" height="50" v-lazy="child.avatar" alt="歌手图片" />
             <span class="name">{{child.name}}</span>
           </li>
@@ -119,7 +124,7 @@ export default {
       }
     },
     selectItem(item) {
-      this.$emit('select', item)
+      this.$emit("select", item);
     }
   },
   watch: {
