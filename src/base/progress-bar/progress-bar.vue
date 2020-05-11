@@ -46,14 +46,13 @@ export default {
     },
     touchEnd(e) {
       this.$emit("percentChange", this.getPercent());
-      this.touch.initiated = false
-
+      this.touch.initiated = false;
     },
     progressClick(e) {
-      const paddingLeft = this.$refs.progressBar.getBoundingClientRect().left
-      const offsetX = e.pageX - paddingLeft
-      this._offset(offsetX)
-      this.$emit("percentChange", this.getPercent())
+      const paddingLeft = this.$refs.progressBar.getBoundingClientRect().left;
+      const offsetX = e.pageX - paddingLeft;
+      this._offset(offsetX);
+      this.$emit("percentChange", this.getPercent());
     },
     getPercent() {
       const barWidth = this.$refs.progressBar.clientWidth - barBtnWidth;
