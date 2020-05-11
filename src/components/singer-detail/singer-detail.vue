@@ -10,6 +10,7 @@ import { getSingerDetail } from "api/singer.js";
 import { ERR_OK } from "api/config.js";
 import { createSong } from "common/js/song.js";
 import MusicList from "components/music-list/music-list";
+import {processSongsUrl} from 'common/js/song.js'
 export default {
   data() {
     return {
@@ -27,7 +28,6 @@ export default {
   },
   created() {
     this._getSingerDetail(this.singer.id);
-    console.log(this.singer.id);
   },
   methods: {
     _getSingerDetail(singerId) {
@@ -36,8 +36,11 @@ export default {
       }
       getSingerDetail(singerId).then(res => {
         if (res.code === ERR_OK) {
-          this.songList = this._normalizeSonglist(res.data.list);
-          console.log(this.songList);
+          processSongsUrl(this._normalizeSonglist(res.data.list)).then(songs => {
+            this.songList = songs;
+          });
+          // this.songList = this._normalizeSonglist(res.data.list);
+          // console.log(this.songList);
         }
       });
     },

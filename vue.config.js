@@ -1,6 +1,7 @@
 const path = require('path')
 const resolve = dir => path.join(__dirname, dir)
 const axios = require('axios')
+const bodyParser = require('body-parser')
 
 module.exports = {
   devServer: {
@@ -17,10 +18,10 @@ module.exports = {
           params: req.query
         }).then((response) => {
           response = response.data
-          if(response.focus.data && response.focus.data.content) {
+          if (response.focus.data && response.focus.data.content) {
             let slider = []
             let content = response.focus.data.content
-            for(var i = 0; i<content.length; i++) {
+            for (var i = 0; i < content.length; i++) {
               let contentItem = content[i]
               let sliderItem = {}
               sliderItem.id = contentItem.id
@@ -45,7 +46,7 @@ module.exports = {
         })
       })
       // 歌单列表数据
-      app.get('/api/getSongRecList', function(req, res) {
+      app.get('/api/getSongRecList', function (req, res) {
         const url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
         axios.get(url, {
           headers: {
@@ -53,9 +54,23 @@ module.exports = {
             host: 'c.y.qq.com'
           },
           params: req.query
-        }).then((response)=>{
+        }).then((response) => {
           res.json(response.data)
-        }).catch((e)=>{
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+      app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
+        const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+        axios.post(url, req.body, {
+          headers: {
+            referer: 'https://y.qq.com',
+            origin: 'https://y.qq.com',
+            'Content-type': 'application/x-www-form-urlencoded'
+          }
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
           console.log(e)
         })
       })
