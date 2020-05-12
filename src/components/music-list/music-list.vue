@@ -7,7 +7,7 @@
     <div class="bg-image" ref="bgImage" :style="bgStyle">
       <div class="filter" ref="filter"></div>
       <div class="play-wrapper" v-show="this.songs.length" ref="play">
-        <div class="play">
+        <div class="play" @click="randomPlayAll">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -37,7 +37,7 @@ import SongList from "base/song-list/song-list";
 import Scroll from "base/scroll/scroll";
 import { prefixStyle } from "common/js/dom.js";
 import Loading from "base/loading/loading";
-import {mapActions} from 'vuex'
+import { mapActions } from "vuex";
 const TOP_HEIGHT = 40;
 const transform = prefixStyle("transform");
 const backDrop = prefixStyle("backdrop-filter");
@@ -78,11 +78,12 @@ export default {
       this.$router.back();
     },
     selectItem(songs, index) {
-      this.setPlay({songs, index})
+      this.setPlay({ songs, index });
     },
-    ...mapActions([
-      'setPlay'
-    ])
+    randomPlayAll() {
+      this.randomPlay({ songs: this.songs });
+    },
+    ...mapActions(["setPlay", "randomPlay"])
   },
   computed: {
     bgStyle() {

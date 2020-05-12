@@ -33,9 +33,17 @@
               </div>
             </div>
           </div>
-          <div class="middle-r"></div>
+          <scroll class="middle-r" :data="currentLyric&&currentLyric.lines">
+            <div class="lyric-wrapper">
+              <p :class="{active: currentLineNum===index}" class="lyric" v-for="(item, index) in currentLyric.lines" :key="item.time">{{item.txt}}</p>
+            </div>
+          </scroll>
         </div>
         <div class="bottom">
+          <div class="dots-wrapper">
+            <span class="dot" :class="{active: currentPage==='cd'}"></span>
+            <span class="dot"></span>
+          </div>
           <div class="progress-wrapper">
             <span class="time time-l">{{timeFormat(currentTime)}}</span>
             <div class="progress-bar-wrapper" ref="progressBarWrapper">
@@ -45,7 +53,7 @@
           </div>
           <div class="control">
             <div class="icon i-left">
-              <i class="icon-sequence"></i>
+              <i :class="playmodeIcon" @click="changeMode"></i>
             </div>
             <div class="icon i-left" :class="disableCls">
               <i class="icon-prev" @click="prev"></i>
@@ -103,18 +111,25 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "common/js/dom.js";
 import ProgressBar from "base/progress-bar/progress-bar";
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config.js'
+import {shuffle} from 'common/js/util.js'
+import Lyric from 'lyric-parser'
+import Scroll from 'base/scroll/scroll'
 const transform = prefixStyle("transform");
 export default {
   data() {
     return {
       readyFlag: false,
       currentTime: 0,
-      radius: 32
+      radius: 32,
+      currentPage: 'cd',
+      currentLyric: '',
+      currentLineNum: 0
     };
   },
   computed: {
@@ -123,6 +138,15 @@ export default {
     },
     playIcon() {
       return this.playState ? "icon-pause" : "icon-play";
+    },
+    playmodeIcon() {
+      if(this.mode === playMode.sequence) {
+        return 'icon-sequence'
+      } else if(this.mode === playMode.loop) {
+        return 'icon-loop'
+      } else {
+        return 'icon-random'
+      }
     },
     disableCls() {
       return !this.readyFlag ? "disabled" : "";
@@ -136,7 +160,9 @@ export default {
       "fullScreen",
       "currentSong",
       "playState",
-      "currentIndex"
+      "currentIndex",
+      "mode",
+      "sequenceList"
     ])
   },
   watch: {
@@ -160,11 +186,24 @@ export default {
       if (newSong) {
         this.$nextTick(() => {
           this.$refs.audio.play();
+          this.getLyric()
         });
       }
     }
   },
   methods: {
+    getLyric() {
+      this.currentSong.getLyric().then((lyric)=>{
+        this.currentLyric = new Lyric(lyric, this.handleLyric)
+        if(this.playState) {
+          this.currentLyric.play()
+        }
+        
+      })
+    },
+    handleLyric({lineNum, txt}) {
+      this.currentLineNum = lineNum
+    },
     hide() {
       this.setfullScreen(false);
     },
@@ -204,13 +243,39 @@ export default {
     },
     loop() {
       this.currentTime = 0;
-      this.$refs.audio.play();
+      this.$nextTick(()=>{
+        this.$refs.audio.play();
+      })
     },
     end() {
-      this.next();
+      if(this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.next();
+      }
     },
     ready() {
       this.readyFlag = true;
+    },
+    changeMode() {
+      const mode = (this.mode+1)%3
+      this.setplayMode(mode)
+      if(this.mode === playMode.random) {
+        const randomPlayList = shuffle(this.playList)
+        const index = this.findIndex(randomPlayList)
+        this.setplayList(randomPlayList)
+        this.setcurrentIndex(index)  
+      } else {
+        const sequenceList = this.sequenceList
+        const index = this.findIndex(sequenceList)
+        this.setplayList(sequenceList)
+        this.setcurrentIndex(index)
+      }
+    },
+    findIndex(list) {
+      return list.findIndex((item)=>{
+        return item.id === this.currentSong.id
+      })
     },
     error() {
       this.readyFlag = true;
@@ -300,12 +365,15 @@ export default {
     ...mapMutations({
       setfullScreen: "SET_FULL_SCREEN",
       setPlayState: "SET_PLAY_STATE",
-      setcurrentIndex: "SET_CURRENT_INDEX"
+      setcurrentIndex: "SET_CURRENT_INDEX",
+      setplayMode: 'SET_PLAY_MODE',
+      setplayList: 'SET_PLAT_LIST'
     })
   },
   components: {
     ProgressBar,
-    ProgressCircle
+    ProgressCircle,
+    Scroll
   }
 };
 </script>
@@ -359,7 +427,7 @@ export default {
     .middle
       position fixed
       top 88px
-      bottom 150px
+      bottom 160px
       width 100%
       .middle-l
         display inline-block
@@ -390,12 +458,43 @@ export default {
               &.pause
                 animation-play-state paused
       .middle-r
+        overflow hidden
+        position absolute
+        top 0
+        left 0
         display inline-block
+        width 100%
+        height 100%
+        .lyric-wrapper
+          width 100%
+          .lyric
+            text-align center
+            line-height 32px
+            font-size $font-size-medium
+            color $color-text-l
+            &.active
+              color $color-text
     .bottom
       position absolute
       left 0
       bottom 50px
       width 100%
+      .dots-wrapper
+        position absolute
+        bottom 100px
+        left 50%
+        transform translateX(-50%)
+        .dot
+          display inline-block
+          width 8px
+          height 8px
+          border-radius 50%
+          background-color $color-text-l
+          margin 0 4px
+          &.active
+            width 20px
+            border-radius 30%
+            background-color $color-text-ll
       .progress-wrapper
         display flex
         position absolute
