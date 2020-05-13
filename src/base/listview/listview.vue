@@ -44,9 +44,11 @@
 import Scroll from "base/scroll/scroll";
 import "./../../common/stylus/variable.styl";
 import { getData } from "common/js/dom.js";
+import {playlistMixin} from 'common/js/mixin.js'
 const SHORT_CUT_ITEM_HEIGHT = 18;
 const FIXED_TITLE_HEIGHT = 30;
 export default {
+  mixins: [playlistMixin],
   data() {
     return {
       scrollY: -1,
@@ -85,6 +87,11 @@ export default {
     }
   },
   methods: {
+    playListHandler(playList) {
+      const bottom = playList.length>0?"60px": ""
+      this.$refs.listview.$el.style.bottom = bottom
+      this.$refs.listview.refresh()
+    },
     onshortcutTouchstart(e) {
       // 获取点击元素的索引值
       let index = parseInt(getData(e.target, "index"));

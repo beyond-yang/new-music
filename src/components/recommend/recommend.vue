@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <scroll :data="songRecList" ref="scroll" class="recommend-content">
       <div>
         <div class="banner-wrapper">
@@ -39,7 +39,9 @@ import { getTopBanner, getSongRecList } from "api/recommend.js";
 import Banner from "base/banner/banner";
 import Scroll from "base/scroll/scroll";
 import Loading from 'base/loading/loading'
+import {playlistMixin} from 'common/js/mixin.js'
 export default {
+  mixins: [playlistMixin],
   data() {
     return {
       bannerList: [],
@@ -51,6 +53,11 @@ export default {
     this._getSongRecList();
   },
   methods: {
+    playListHandler(playList) {
+      const bottom = playList.length>0?"60px": ""
+      this.$refs.recommend.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     _getTopBanner() {
       getTopBanner().then(res => {
         if (res.code === ERR_OK) {

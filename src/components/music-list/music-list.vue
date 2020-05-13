@@ -38,10 +38,12 @@ import Scroll from "base/scroll/scroll";
 import { prefixStyle } from "common/js/dom.js";
 import Loading from "base/loading/loading";
 import { mapActions } from "vuex";
+import {playlistMixin} from 'common/js/mixin.js'
 const TOP_HEIGHT = 40;
 const transform = prefixStyle("transform");
 const backDrop = prefixStyle("backdrop-filter");
 export default {
+  mixins: [playlistMixin],
   data() {
     return {
       scrollY: 0
@@ -71,6 +73,11 @@ export default {
     this.$refs.bgLayer.style.top = `${this.bgImageHeight}px`;
   },
   methods: {
+    playListHandler(playList) {
+      const bottom = playList.length>0?"60px":""
+      this.$refs.scroll.$el.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     scroll(pos) {
       this.scrollY = pos.y;
     },
