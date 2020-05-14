@@ -5,6 +5,8 @@ import Singer from 'components/singer/singer'
 import Rank from 'components/rank/rank'
 import Search from 'components/search/search'
 import SingerDetail from 'components/singer-detail/singer-detail'
+import RecDetail from 'components/rec-detail/rec-detail'
+import RankDetail from 'components/rank-detail/rank-detail'
 
 Vue.use(VueRouter)
 
@@ -14,21 +16,33 @@ const routes = [{
   },
   {
     path: '/recommend',
-    component: Recommend
+    component: Recommend,
+    children: [
+      {
+        path: ':id',
+        component: RecDetail
+      }
+    ]
   },
   {
     path: '/singer',
     component: Singer,
     children: [
       {
-        path: ':id',
+        path: ':dissid',
         component: SingerDetail
       }
     ]
   },
   {
     path: '/rank',
-    component: Rank
+    component: Rank,
+    children: [
+      {
+        path: ':id',
+        component: RankDetail
+      }
+    ]
   },
   {
     path: '/search',

@@ -160,6 +160,8 @@ export default {
     position absolute
     top 10px
     left 50%
+    width 80%
+    text-align center
     transform translateX(-50%)
     font-size $font-size-large
     color $color-text

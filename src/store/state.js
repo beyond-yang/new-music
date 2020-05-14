@@ -6,7 +6,9 @@ const state = {
   playList: [],
   sequenceList: [],
   currentIndex: 0,
-  mode: playMode.sequence
+  mode: playMode.sequence,
+  recSongInfo: {},
+  rankItem: {}
 }
 
 export default state

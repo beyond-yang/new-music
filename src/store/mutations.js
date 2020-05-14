@@ -20,7 +20,13 @@ const mutations = {
   },
   [types.SET_PLAY_MODE](state, mode) {
     state.mode = mode
-  } 
+  },
+  [types.SET_REC_SONG_INFO](state, recSongInfo) {
+    state.recSongInfo = recSongInfo
+  },
+  [types.SET_RANK_ITEM](state, rankItem) {
+    state.rankItem = rankItem
+  }
 }
 
 export default mutations

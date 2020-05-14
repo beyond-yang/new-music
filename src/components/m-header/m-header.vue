@@ -14,11 +14,12 @@ export default {};
 @import './../../common/stylus/variable.styl'
 
 .m-header
+  position relative
   display flex
   justify-content center
   align-items center
   color $color-theme
-  height 44px
+  height 44px 
   .icon
     width 30px
     height 32px

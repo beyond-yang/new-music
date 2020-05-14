@@ -14,7 +14,7 @@
         <div class="songlist-wrapper">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li v-for="item in songRecList" :key="item.dissid">
+            <li v-for="item in songRecList" :key="item.dissid" @click="select(item)">
               <div class="icon">
                 <img v-lazy="item.imgurl" alt="歌单图片" />
               </div>
@@ -30,6 +30,7 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -40,6 +41,7 @@ import Banner from "base/banner/banner";
 import Scroll from "base/scroll/scroll";
 import Loading from 'base/loading/loading'
 import {playlistMixin} from 'common/js/mixin.js'
+import {mapMutations} from 'vuex'
 export default {
   mixins: [playlistMixin],
   data() {
@@ -53,6 +55,12 @@ export default {
     this._getSongRecList();
   },
   methods: {
+    select(item) {
+      this.setRecSongInfo(item)
+      this.$router.push({
+        path: `/recommend/${item.dissid}`
+      })
+    },
     playListHandler(playList) {
       const bottom = playList.length>0?"60px": ""
       this.$refs.recommend.style.bottom = bottom
@@ -69,7 +77,7 @@ export default {
       getSongRecList().then(res => {
         if (res.code === ERR_OK) {
           this.songRecList = res.data.list;
-          console.log(this.songRecList);
+          // console.log(this.songRecList);
         }
       });
     },
@@ -78,7 +86,10 @@ export default {
         this.$refs.scroll.refresh()
         this.checkLoaded = true
       }
-    }
+    },
+    ...mapMutations({
+      setRecSongInfo: 'SET_REC_SONG_INFO'
+    })
   },
   components: {
     Banner,

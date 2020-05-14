@@ -22,6 +22,7 @@ export default {};
 <style lang="stylus" scoped>
 @import './../../common/stylus/variable.styl'
 .m-tab
+  position relative
   display flex
   height 44px
   .tab-item
