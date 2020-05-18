@@ -1,7 +1,12 @@
 <template>
-  <scroll class="suggest" :pullup="pullup" @scrollToEnd="searchMore">
+  <scroll v-if="searchList.length>0" 
+          ref="suggest" 
+          class="suggest" 
+          :pullup="pullup" 
+          @scrollToEnd="searchMore" 
+          :data="searchList">
     <ul class="search-list-wrapper">
-      <li v-for="(item, index) in searchList" class="search-item" @click="selectItem(item, index)">
+      <li v-for="(item, index) in searchList" :key="index" class="search-item" @click="selectItem(item, index)">
         <i :class="index===0?searchIcon:''" class="icon-music icon"></i>
         <span class="text">{{item.name}}{{index===0?'':'-'}}{{item.singer}}</span>
       </li>
@@ -114,6 +119,10 @@ export default {
       } else {
         this.insertSong(item);
       }
+      this.$emit('select', item)
+    },
+    refresh() {
+      this.$refs.suggest.refresh()
     },
     ...mapMutations({
       setSinger: "SET_SINGER"
@@ -131,12 +140,8 @@ export default {
 @import './../../common/stylus/variable.styl'
 
 .suggest
-  position fixed
-  top 175px
-  left 0
-  right 0
-  bottom 0
-  overflow hidden
+  width 100%
+  height 100%
   .search-list-wrapper
     padding 0 30px
     font-size $font-size-medium

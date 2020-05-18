@@ -15,3 +15,5 @@ export const SET_PLAY_MODE = 'SET_PLAY_MODE'
 export const SET_REC_SONG_INFO = 'SET_REC_SONG_INFO'
 
 export const SET_RANK_ITEM = 'SET_RANK_ITEM'
+
+export const SET_SEARCH_HISTORY = 'SET_SEARCH_HISTORY'
