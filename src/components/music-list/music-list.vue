@@ -85,6 +85,7 @@ export default {
       this.$router.back();
     },
     selectItem(songs, index) {
+      console.log(songs)
       this.setPlay({ songs, index });
     },
     randomPlayAll() {
