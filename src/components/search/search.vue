@@ -153,6 +153,7 @@ export default {
           color $color-text-d
     .search-history
       padding 0 20px
+      position relative
       .clear
         display flex
         align-items center

@@ -1,13 +1,13 @@
 <template>
-  <div class="search-list">
-    <ul>
-      <li class="item" @click="selectItem(item)" v-for="(item, index) in searchList" :key="index">
+  <div class="search-list" v-show="searchList.length">
+    <transition-group tag="ul" name="list">
+      <li class="item" @click="selectItem(item)" v-for="(item) in searchList" :key="item">
         <span class="text">{{item}}</span>
-        <span class="icon" @click="deleteOne(item)">
+        <span class="icon" @click.stop="deleteOne(item)">
           <i class="icon-delete"></i>
         </span>
       </li>
-    </ul>
+    </transition-group>
   </div>
 </template>
 
@@ -33,13 +33,17 @@ export default {
 <style lang="stylus" scoped>
 @import './../../common/stylus/variable.styl'
 @import './../../common/stylus/mixin.styl'
-
 .search-list
   .item
     display flex
     justify-content space-between
     align-items center
     height 40px
+    overflow hidden
+    &.list-enter-active, &.list-leave-active
+      transition: all 0.1s
+    &.list-enter, &.list-leave-to
+      height: 0
     .text
       font-size $font-size-medium-x
       color $color-text-l

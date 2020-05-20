@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div class="confirm" v-show="showFlag">
+    <div class="confirm" v-show="showFlag" @click.stop>
       <div class="confirm-wrapper">
         <div class="top">{{text}}</div>
         <div class="bottom">
@@ -42,6 +42,7 @@ export default {
     },
     confirm() {
       this.$emit("confirm");
+      this.hide()
     },
     cancel() {
       this.hide();
@@ -62,6 +63,7 @@ export default {
   display flex
   justify-content center
   align-items center
+  background-color $color-background-d
   &.fade-enter-active
     animation confirm-fadein 0.3s
     .confirm-wrapper

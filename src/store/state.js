@@ -1,5 +1,5 @@
 import {playMode} from 'common/js/config.js'
-import {getSearch} from 'common/js/cache.js'
+import {getSearch, getPlay} from 'common/js/cache.js'
 const state = {
   singer: [],
   playState: false,
@@ -10,7 +10,8 @@ const state = {
   mode: playMode.sequence,
   recSongInfo: {},
   rankItem: {},
-  searchHistory: getSearch()
+  searchHistory: getSearch(),
+  palyHistory: getPlay()
 }
 
 export default state

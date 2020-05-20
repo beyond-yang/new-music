@@ -27,7 +27,7 @@ export default {
 
 <style lang="stylus" scoped>
 @import './../../common/stylus/variable.styl'
-
+@import './../../common/stylus/mixin.styl'
 .song-list
   .song-item
     display flex
@@ -41,4 +41,5 @@ export default {
     .desc
       color $color-text-d
       margin-top 8px
+      no-wrap()
 </style>

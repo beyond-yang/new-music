@@ -98,7 +98,7 @@
           </progress-circle>
         </div>
         <div class="control">
-          <i class="icon-playlist"></i>
+          <i class="icon-playlist" @click.stop="showPlaylist"></i>
         </div>
       </div>
     </transition>
@@ -110,6 +110,7 @@
       @timeupdate="updateTime"
       @ended="end"
     ></audio>
+    <play-list ref="playlist"></play-list>
   </div>
 </template>
 
@@ -120,11 +121,14 @@ import { prefixStyle } from "common/js/dom.js";
 import ProgressBar from "base/progress-bar/progress-bar";
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config.js'
-import {shuffle} from 'common/js/util.js'
+
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
+import PlayList from 'components/playlist/playlist'
+import {playerMixin} from 'common/js/mixin.js'
 const transform = prefixStyle("transform");
 export default {
+  mixins: [playerMixin],
   data() {
     return {
       readyFlag: false,
@@ -143,15 +147,6 @@ export default {
     playIcon() {
       return this.playState ? "icon-pause" : "icon-play";
     },
-    playmodeIcon() {
-      if(this.mode === playMode.sequence) {
-        return 'icon-sequence'
-      } else if(this.mode === playMode.loop) {
-        return 'icon-loop'
-      } else {
-        return 'icon-random'
-      }
-    },
     disableCls() {
       return !this.readyFlag ? "disabled" : "";
     },
@@ -159,13 +154,11 @@ export default {
       return this.currentTime / this.currentSong.duration;
     },
     ...mapGetters([
-      "playList",
       "currentSong",
       "fullScreen",
       "currentSong",
       "playState",
       "currentIndex",
-      "mode",
       "sequenceList"
     ])
   },
@@ -300,6 +293,10 @@ export default {
       if (!this.readyFlag) {
         return;
       }
+      if(this.mode === playMode.loop) {
+        this.$refs.audio.currentTime = 0
+        return 
+      }
       let currentIndex = this.currentIndex - 1;
       if (currentIndex === -1) {
         currentIndex = this.playList.length - 1;
@@ -313,6 +310,10 @@ export default {
     next() {
       if (!this.readyFlag) {
         return;
+      }
+      if(this.mode === playMode.loop) {
+        this.$refs.audio.currentTime = 0
+        return 
       }
       let currentIndex = this.currentIndex + 1;
       if (currentIndex === this.playList.length) {
@@ -342,26 +343,7 @@ export default {
     },
     ready() {
       this.readyFlag = true;
-    },
-    changeMode() {
-      const mode = (this.mode+1)%3
-      this.setplayMode(mode)
-      if(this.mode === playMode.random) {
-        const randomPlayList = shuffle(this.playList)
-        const index = this.findIndex(randomPlayList)
-        this.setplayList(randomPlayList)
-        this.setcurrentIndex(index)  
-      } else {
-        const sequenceList = this.sequenceList
-        const index = this.findIndex(sequenceList)
-        this.setplayList(sequenceList)
-        this.setcurrentIndex(index)
-      }
-    },
-    findIndex(list) {
-      return list.findIndex((item)=>{
-        return item.id === this.currentSong.id
-      })
+      this.savePlayHistory(this.currentSong)
     },
     error() {
       this.readyFlag = true;
@@ -383,6 +365,9 @@ export default {
       let minute = (time / 60) | 0;
       let seconds = time % 60 | 0;
       return `${minute}:${seconds.toString().padStart(2, 0)}`;
+    },
+    showPlaylist() {
+      this.$refs.playlist.show()
     },
     /**
      * 计算内层Image的transform，并同步到外层容器
@@ -454,23 +439,24 @@ export default {
     },
     ...mapMutations({
       setfullScreen: "SET_FULL_SCREEN",
-      setPlayState: "SET_PLAY_STATE",
-      setcurrentIndex: "SET_CURRENT_INDEX",
-      setplayMode: 'SET_PLAY_MODE',
-      setplayList: 'SET_PLAT_LIST'
-    })
+      setPlayState: "SET_PLAY_STATE"
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    PlayList
   }
 };
 </script>
 
 <style lang="stylus" scoped>
 @import './../../common/stylus/variable.styl'
-
+@import './../../common/stylus/mixin.styl'
 .player
   .normal-player
     position fixed
@@ -548,12 +534,14 @@ export default {
               &.pause
                 animation-play-state paused
         .playing-lyric
-          width 100%
           margin-top 30px
+          padding: 0 30px
           .lyricTxt
             font-size $font-size-medium
             color $color-text-l
             text-align center
+            white-space nowrap
+            overflow hidden
       .middle-r
         overflow hidden
         position absolute
@@ -562,12 +550,14 @@ export default {
         width 100%
         height 100%
         .lyric-wrapper
-          width 100%
+          padding 0 30px  
           .lyric
             text-align center
             line-height 32px
             font-size $font-size-medium
             color $color-text-l
+            white-space nowrap
+            overflow hidden
             &.active
               color $color-text
     .bottom

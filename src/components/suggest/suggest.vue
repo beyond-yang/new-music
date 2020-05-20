@@ -8,7 +8,7 @@
     <ul class="search-list-wrapper">
       <li v-for="(item, index) in searchList" :key="index" class="search-item" @click="selectItem(item, index)">
         <i :class="index===0?searchIcon:''" class="icon-music icon"></i>
-        <span class="text">{{item.name}}{{index===0?'':'-'}}{{item.singer}}</span>
+        <span class="text">{{item.name}}-{{item.singer}}</span>
       </li>
     </ul>
     <loading v-show="hasMore"></loading>
@@ -138,7 +138,7 @@ export default {
 
 <style lang="stylus" scoped>
 @import './../../common/stylus/variable.styl'
-
+@import './../../common/stylus/mixin.styl'
 .suggest
   width 100%
   height 100%
@@ -155,4 +155,5 @@ export default {
         flex 0 0 30px
       .text
         flex 1
+        no-wrap()
 </style>
